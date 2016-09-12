@@ -1,25 +1,23 @@
 #pragma once
 
+#define PREC_SIN_TAYLOR_EXPANSION_ORDER 30
 class SinWaveTable{
 private:
 	const int TOTAL_SAMPLES;
 	double* table;
-
-	double inline normalizeToQuarterPeriod(double t) const;
+	double shrinkDomainCoeff;
+	double expandDomainCoeff;
 	double normalizeToTable(double t) const;
 	double getPrevSampleValue(int i) const;
 	double getNextSampleValue(int i) const;
-	int getCosIndex(int t) const;
-	static double calculateSinMaclaurin(double x);
-	static double calculateCosMaclaurin(double x);
+
+	static double normalizeToQuarterPeriod(double t, bool* isSignFliped);
+	static double preciseSin(double t);
 public:
-	explicit SinWaveTable(unsigned tableSize);
-	double inline getLinearInterpolation(double t) const;
-	double inline getLimitedLinearInterpolation(double t) const;
-	double inline getDirectLinearInterpolation(double t) const;
-	double inline getAdditionInterpolation(double t) const;
-	double inline getLimitedAdditionInterpolation(double t) const;
-	double inline getDirectAdditionInterpolation(double t) const;
+	explicit SinWaveTable(unsigned int tablesize);
+	double getQuadraticInterpolation(double t) const;
+	double getLimitedQuadraticInterpolation(double t) const;
+	double getDirectQuadraticInterpolation(double t) const;
 	~SinWaveTable();
 };
 

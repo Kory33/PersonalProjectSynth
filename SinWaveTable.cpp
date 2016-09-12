@@ -1,17 +1,21 @@
 #include "SinWaveTable.h"
+
 #define _USE_MATH_DEFINES
 #include <cmath>
 
+
 // Constructor
-// tableSize should be power of 2
-SinWaveTable::SinWaveTable(unsigned tableSize = 2048) : TOTAL_SAMPLES(tableSize){
+SinWaveTable::SinWaveTable(unsigned int tableSize = 1024) : TOTAL_SAMPLES(tableSize){
 	// contains half a period with a zero added at the last
 	this->table = new double[TOTAL_SAMPLES];
 
+	this->shrinkDomainCoeff = .5 * M_PI / this->TOTAL_SAMPLES;
+	this->expandDomainCoeff = 2. * this->TOTAL_SAMPLES / M_PI;
+
 	// prepare the content of table
-	double halfPeriod = M_PI;
+	double quadPeriod = 0.5 * M_PI;
 	for(int i = 0; i < TOTAL_SAMPLES; i++){
-		this->table[i] = sin(halfPeriod * double(i) / double(TOTAL_SAMPLES));
+		this->table[i] = preciseSin(quadPeriod * double(i) / double(TOTAL_SAMPLES));
 	}
 }
 
@@ -22,131 +26,116 @@ SinWaveTable::~SinWaveTable(){
 
 /**
  * Public methods
-*/
+ */
 
-// Returns sin(t) using linear interpolation
-double inline SinWaveTable::getLinearInterpolation(double t) const{
-	return this->getLimitedLinearInterpolation(this->normalizeToQuarterPeriod(t));
+// Returns sin(t) using quadratic interpolation
+double SinWaveTable::getQuadraticInterpolation(double t) const{
+	bool isSignFlipped = false;
+	double td = this->normalizeToQuarterPeriod(t, &isSignFlipped);
+	if(isSignFlipped){
+		return -this->getLimitedQuadraticInterpolation(td);
+	}
+	return this->getLimitedQuadraticInterpolation(td);
 }
 
-// Returns sin(t) for 0 <= t < PI, using linear interpolation
+// Returns sin(t) for 0 <= t < PI/2, using quadratic interpolation
 // Do not use this function outside the range
-double inline SinWaveTable::getLimitedLinearInterpolation(double t) const{
-	return this->getDirectLinearInterpolation(t * this->TOTAL_SAMPLES / M_PI);
+double SinWaveTable::getLimitedQuadraticInterpolation(double t) const{
+	return this->getDirectQuadraticInterpolation(t * this->expandDomainCoeff);
 }
 
-// Returns sin(td) where 0 <= td = t * SAMPLE / PI < SAMPLE, using linear interpolation
+// Returns sin(tc) where 0 <= t = tc * SAMPLE / PI < SAMPLE, using quadratic interpolation
 // This method may be used only if the SAMPLE number is known and phase is handled
-double inline SinWaveTable::getDirectLinearInterpolation(double t) const{
-	// sample that is largest and nearest to t
-	int nearestMaxSampleNum = int(t);
-	double lastSampleValue = this->table[nearestMaxSampleNum];
-	double nextSampleValue = this->getNextSampleValue(nearestMaxSampleNum);
-
-	// difference in the phase between of t and floor(t)
-	double deltaPhase = t - nearestMaxSampleNum;
-
-	//linear interpolation
-	return lastSampleValue + deltaPhase * (nextSampleValue - lastSampleValue);
-}
-
-// Returns sin(t) using addition theorem interpolation
-double inline SinWaveTable::getAdditionInterpolation(double t) const{
-	return this->getLimitedAdditionInterpolation(this->normalizeToQuarterPeriod(t));
-}
-
-// Returns sin(t) for 0 <= t < PI, using addition theorem interpolation
-// Do not use this function outside the range
-double inline SinWaveTable::getLimitedAdditionInterpolation(double t) const{
-	return this->getDirectAdditionInterpolation(t * this->TOTAL_SAMPLES / M_PI);
-}
-
-// Returns sin(td) where 0 <= td = t * SAMPLE / PI < SAMPLE, using addition theorem interpolation
-// This method may be used only if the SAMPLE number is known and phase is handled
-double inline SinWaveTable::getDirectAdditionInterpolation(double t) const{
+double SinWaveTable::getDirectQuadraticInterpolation(double t) const{
 	// sample that is largest and nearest to t
 	int nearestMaxSampleNum = int(t);
 
 	// difference in the phase between of t and floor(t)
 	double deltaPhase = t - nearestMaxSampleNum;
 
-	// use sin(a + b) = sin(a)cos(b) + cos(a)sin(b)
-	return this->table[nearestMaxSampleNum] * calculateCosMaclaurin(deltaPhase) +
-		   this->table[this->getCosIndex(nearestMaxSampleNum)] * calculateSinMaclaurin(deltaPhase);
+	double last = this->table[nearestMaxSampleNum];
+	double next = this->getNextSampleValue(nearestMaxSampleNum);
+	double prev = this->getPrevSampleValue(nearestMaxSampleNum);
+
+	// use quadratic interpolation
+	return 0.5 * deltaPhase * ((deltaPhase + 1.) * next + (deltaPhase - 1.) * prev - 2. * deltaPhase * last) + last;
 }
 
 /**
-* Private methods
-*/
+ * Private methods
+ */
 
-// Restricts and converts the time into [0, PI)
-double inline SinWaveTable::normalizeToQuarterPeriod(double t) const{
-	// restrict or convert the range
+// Restricts and converts the time into [0, PI / 2)
+// Stores true for the second pointer's content if the resultant sign should be flipped
+double SinWaveTable::normalizeToQuarterPeriod(double t, bool* isSignFliped){
+	// filp the sign of t and sin if t < 0
+	// i.e. sin(-t) = -sin(t)
 	if(t < 0){
-		return -this->getLinearInterpolation(-t);
+		*isSignFliped ^= 1;
+		return normalizeToQuarterPeriod(-t, isSignFliped);
 	}
 
-	if(t >= 2 * M_PI){
-		return this->getLinearInterpolation(t - M_PI * int(t / M_PI));
+	// if t is greater than the table's range
+	if(t > 0.5 * M_PI) {
+		// if t is outside half a period
+		if(t > M_PI){
+			// if t is outside a period
+			if(t >= 2 * M_PI){
+				return normalizeToQuarterPeriod(t - 2 * M_PI * int(t / (2 * M_PI)), isSignFliped);
+			}
+
+			// sin(a) = -sin(a - pi)
+			*isSignFliped ^= 1;
+			return normalizeToQuarterPeriod(t - M_PI, isSignFliped);
+		}
+		// sin(t) = sin(pi - t)
+		return normalizeToQuarterPeriod(M_PI - t, isSignFliped);
 	}
 
-	if(t > M_PI){
-		return -this->getLinearInterpolation(t - M_PI);
-	}
-
+	// if t is in [0, pi/4), return as it is
 	return t;
 }
 
 // Normalize [0, PI) to [0, Samples)
-double inline SinWaveTable::normalizeToTable(double t) const{
+double SinWaveTable::normalizeToTable(double t) const{
 	return t * this->TOTAL_SAMPLES / M_PI;
 }
 
-// gets sin[(i - 1) * PI / Samples]
-double inline SinWaveTable::getPrevSampleValue(int i) const{
+// gets previous sample's value
+double SinWaveTable::getPrevSampleValue(int i) const{
 	if(i){
 		return this->table[i - 1];
 	}
+	// as -sin(t) = sin(t)
 	return -this->table[1];
 }
 
-// gets sin[(i + 1) * PI / Samples]
-double inline SinWaveTable::getNextSampleValue(int i) const{
+// gets next sample's value
+double SinWaveTable::getNextSampleValue(int i) const{
 	if(this->TOTAL_SAMPLES - i){
 		return this->table[i + 1];
 	}
-	return 0;
+	// as next element after the end of the table is
+	// sin(pi / 2) == 1.
+	return 1.;
 }
 
-// give int u such that cosTable[t] = sinTable[u]
-int inline SinWaveTable::getCosIndex(int t) const{
-	int index = t + (this->TOTAL_SAMPLES >> 2);
-	if(index >= this->TOTAL_SAMPLES) {
-		index -= this->TOTAL_SAMPLES;
+// calculate precise sin(t) with Maclaurin expansion
+double SinWaveTable::preciseSin(double t){
+	bool negSign = false;
+	double normalizedT = normalizeToQuarterPeriod(t, &negSign);
+	double tSquare = normalizedT * normalizedT;
+
+	double result = 0;
+	double tPower = normalizedT;
+	double factorial = 1;
+
+	// compute Maclaurin expansion
+	for(int i = 1; i <= PREC_SIN_TAYLOR_EXPANSION_ORDER; i++){
+		result += tPower / factorial;
+		tPower *= - tSquare;
+		factorial *= (i << 1) * ((i << 1) + 1);
 	}
-	return index;
+
+	return negSign? -result : result;
 }
-
-/**
-* Static methods
-*/
-
-// return Maclaurin expansion of sin(x) for small x
-double inline SinWaveTable::calculateSinMaclaurin(double x) {
-	double x2 = x * x;
-	double x3 = x2* x;
-	double x5 = x3*x2;
-	double x7 = x5*x2;
-
-	return x - x3 / 6. + x5 / 120. + x7 / 5040;
-}
-
-// return Maclaurin expansion of cos(x) for small x
-double inline SinWaveTable::calculateCosMaclaurin(double x) {
-	double x2 = x * x;
-	double x4 = x2*x2;
-	double x6 = x4*x2;
-
-	return 1 - x2 / 2. + x4 / 24. + x6 / 720.;
-}
-
