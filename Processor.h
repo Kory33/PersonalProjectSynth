@@ -2,6 +2,8 @@
 #include "public.sdk/source/vst/vstaudioeffect.h"
 #include "VoiceProcessor.h"
 
+#define CHANNEL_NUM 2
+
 namespace Steinberg{
 namespace Vst{
 
@@ -9,6 +11,7 @@ namespace PPSynth{
 
 class Processor : public AudioEffect{
 public:
+	Processor();
 	tresult PLUGIN_API initialize(FUnknown*) override;
 
 	tresult PLUGIN_API setState(IBStream*) override;
@@ -28,6 +31,11 @@ public:
 protected:
 	VoiceProcessor* voiceProcessor;  // TODO implement voice processor
 	GlobalParameterState paramState; // TODO implement parameters
+
+private:
+	tresult activate();
+	tresult deactivate();
+	void modifyParameter(const ProcessData&);
 };
 
 // set FUID of Processor

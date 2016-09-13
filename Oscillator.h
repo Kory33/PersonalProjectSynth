@@ -12,6 +12,13 @@ struct OscillatorParameter {
 	// TODO implement oscillator's parameter
 };
 
+class Oscillator {
+public:
+	static OscillatorParameter getDefaultParamter() {
+		return;
+	}
+};
+
 }
 }
 }

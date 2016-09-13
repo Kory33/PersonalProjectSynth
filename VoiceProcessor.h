@@ -11,11 +11,21 @@
 	#define VOICEPROCESSOR_BLOCKSIZE 32
 #endif
 
+#define OSCILLATOR_POLYLAYER_NUM 64
 #define OSCILLATOR_NUM 8
+#define DEFAULTPARAM_MASTER_VOLUME 1.
 
 namespace Steinberg {
 namespace Vst {
-namespace PPSynth {
+namespace PPSynth{
+
+enum class vOscParameters{
+	OscParamNum
+};
+
+enum class vFiltParameters{
+	FiltParamNum
+};
 
 // set of parameters used in synth
 struct GlobalParameterState{
@@ -24,6 +34,22 @@ struct GlobalParameterState{
 	FilterParameter filterParam;
 
 	ParamValue masterVolume;
+	
+	// set a parameter
+	tresult setState(IBStream*);
+
+	// get a parameter
+	tresult getState(IBStream*);
+};
+
+
+uint32 paramNum = static_cast<int>(vOscParameters::OscParamNum) * OSCILLATOR_NUM + 
+			   static_cast<int>(vFiltParameters::FiltParamNum);
+
+// VoiceProcessor class
+template<class SamplePrecision>
+class Voice : public VoiceBase<paramNum, SamplePrecision, 2, GlobalParameterState> {
+	//TODO
 };
 
 }
