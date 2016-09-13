@@ -36,10 +36,10 @@ struct GlobalParameterState{
 	ParamValue masterVolume;
 	
 	// set a parameter
-	tresult setState(IBStream*);
+	tresult setState(IBStream* stream);
 
 	// get a parameter
-	tresult getState(IBStream*);
+	tresult getState(IBStream* stream);
 };
 
 
