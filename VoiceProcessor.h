@@ -49,7 +49,18 @@ uint32 paramNum = static_cast<int>(vOscParameters::OscParamNum) * OSCILLATOR_NUM
 // VoiceProcessor class
 template<class SamplePrecision>
 class Voice : public VoiceBase<paramNum, SamplePrecision, 2, GlobalParameterState> {
-	//TODO
+public:
+	Voice ();
+	~Voice();
+
+	void setSampleRate (ParamValue sampleRate);
+	void noteOn (int32 pitch, ParamValue velocity, float tuning, int32 sampleOffset, int32 nId);
+	void noteOff (ParamValue velocity, int32 sampleOffset);
+
+	bool process (SamplePrecision* outputBuffers[2], int32 numSamples);
+	void reset ();
+
+	void setNoteExpressionValue (int32 index, ParamValue value);
 };
 
 }
