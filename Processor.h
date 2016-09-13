@@ -1,4 +1,6 @@
+#pragma once
 #include "public.sdk/source/vst/vstaudioeffect.h"
+#include "VoiceProcessor.h"
 
 namespace Steinberg{
 namespace Vst{
@@ -24,8 +26,8 @@ public:
 	static const FUID cid;
 
 protected:
-//	VoiceProcessor* voiceProcessor;  // TODO implement voice processor
-//	GlobalParameterState paramState; // TODO implement parameters
+	VoiceProcessor* voiceProcessor;  // TODO implement voice processor
+	GlobalParameterState paramState; // TODO implement parameters
 };
 
 // set FUID of Processor
