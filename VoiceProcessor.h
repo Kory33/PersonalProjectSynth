@@ -20,11 +20,16 @@ namespace Vst {
 namespace PPSynth{
 
 enum class vOscParameters{
-	OscParamNum
+	receiveChannel,
+	filterParamOffset
 };
 
 enum class vFiltParameters{
-	FiltParamNum
+	masterParamOffset = static_cast<int>(vOscParameters::filterParamOffset) * OSCILLATOR_NUM
+};
+
+enum class vMasterParameters {
+	paramTotalNum = static_cast<int>(vFiltParameters::masterParamOffset)
 };
 
 // set of parameters used in synth
@@ -42,13 +47,9 @@ struct GlobalParameterState{
 	tresult getState(IBStream* stream);
 };
 
-
-uint32 paramNum = static_cast<int>(vOscParameters::OscParamNum) * OSCILLATOR_NUM + 
-			   static_cast<int>(vFiltParameters::FiltParamNum);
-
 // VoiceProcessor class
 template<class SamplePrecision>
-class Voice : public VoiceBase<paramNum, SamplePrecision, 2, GlobalParameterState> {
+class Voice : public VoiceBase<vMasterParameters::paramTotalNum, SamplePrecision, 2, GlobalParameterState> {
 public:
 	Voice ();
 	~Voice();
@@ -61,6 +62,9 @@ public:
 	void reset ();
 
 	void setNoteExpressionValue (int32 index, ParamValue value);
+
+protected:
+
 };
 
 }
