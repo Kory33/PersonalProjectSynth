@@ -50,18 +50,23 @@ struct GlobalParameterState{
 // VoiceProcessor class
 template<class SamplePrecision>
 class Voice : public VoiceBase<vMasterParameters::paramTotalNum, SamplePrecision, 2, GlobalParameterState> {
+
+	typedef VoiceBase<vMasterParameters::paramTotalNum, SamplePrecision, 2, GlobalParameterState> VBase;
 public:
 	Voice ();
 	~Voice();
 
-	void setSampleRate (ParamValue sampleRate);
-	void noteOn (int32 pitch, ParamValue velocity, float tuning, int32 sampleOffset, int32 nId);
-	void noteOff (ParamValue velocity, int32 sampleOffset);
+	// set the sampling rate
+	void setSampleRate (ParamValue sampleRate) override;
+
+	// noteon event
+	void noteOn (int32 pitch, ParamValue velocity, float tuning, int32 sampleOffset, int32 nId) override;
+	void noteOff (ParamValue velocity, int32 sampleOffset) override;
 
 	bool process (SamplePrecision* outputBuffers[2], int32 numSamples);
-	void reset ();
+	void reset () override;
 
-	void setNoteExpressionValue (int32 index, ParamValue value);
+	void setNoteExpressionValue (int32 index, ParamValue value) override;
 
 protected:
 
