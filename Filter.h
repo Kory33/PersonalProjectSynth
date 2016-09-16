@@ -1,14 +1,10 @@
 #pragma once
 
-#include "VoiceProcessor.h"
+#include "Synthesizer.h"
 
 namespace Steinberg{
 namespace Vst{
 namespace PPSynth{
-
-struct FilterParameter {
-	// TODO implement filter's parameter
-};
 
 class Filter {
 public:

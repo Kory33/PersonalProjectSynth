@@ -14,18 +14,10 @@ namespace Steinberg {
 namespace Vst {
 	
 namespace PPSynth {
-	Processor::Processor() : voiceProcessor(nullptr){
+	Processor::Processor() : synthesizer(nullptr){
 //		setControllerClass(); // TODO add controller class to processor
 
-		memset(&paramState, 0, sizeof(paramState));
-
-		paramState.filterParam = Filter::getDefaultParameter();
-
-		for(int i = 0; i < OSCILLATOR_NUM; i++){
-			paramState.oscParam[i] = Oscillator::getDefaultParamter();
-		}
-
-		paramState.masterVolume = DEFAULTPARAM_MASTER_VOLUME;
+		this->paramState = new ParameterContainer(OSCILLATOR_NUM, FILTER_NUM);
 	}
 
 	tresult Processor::initialize(FUnknown* context) {
@@ -41,11 +33,11 @@ namespace PPSynth {
 	}
 
 	tresult Processor::setState(IBStream* state) {
-		return paramState.setState(state);
+		return paramState->setState(state);
 	}
 
 	tresult Processor::getState(IBStream* state) {
-		return paramState.getState(state);
+		return paramState->getState(state);
 	}
 
 	tresult Processor::setBusArrangements(SpeakerArrangement* inputs, int32 inputNum, SpeakerArrangement* outputs, int32 outputNum){
@@ -77,33 +69,27 @@ namespace PPSynth {
 			this->modifyParameter(data);
 		}
 
-		tresult result = (data.numOutputs < 1) ? result = kResultTrue : this->voiceProcessor->process(data);
+		tresult result = (data.numOutputs < 1) ? result = kResultTrue : this->synthesizer->process(data);
 
 		if(result == kResultTrue) {
-			if(voiceProcessor->getActiveVoices() == 0 && data.numOutputs > 0) {
-				// silence channels
-				data.outputs[0].silenceFlags = 0x11;
-			}
+//			if(synthesizer->getActiveVoices() == 0 && data.numOutputs > 0) {
+//				// silence channels
+//				data.outputs[0].silenceFlags = 0x11;
+//			}
 		}
 
 		return result;
 	}
 
 	tresult Processor::activate() {
-		if(this->voiceProcessor == nullptr){
+		if(this->synthesizer == nullptr){
 			if(processSetup.symbolicSampleSize == kSample32){
-				// if the host offers sample size in single precision
-				// initialize voice processor with float precision
-				this->voiceProcessor = new VoiceProcessorImplementation
-						<float, Voice<float>, CHANNEL_NUM, OSCILLATOR_NUM, GlobalParameterState>
-						(processSetup.sampleRate, &paramState);
+				// single precision
+				this->synthesizer = new Synthesizer<double, CHANNEL_NUM, OSCILLATOR_NUM, FILTER_NUM, ParameterContainer>(float(processSetup.sampleRate), paramState);
 
 			} else if(processSetup.symbolicSampleSize == kSample32){
-				// if the host offers sample size in double precision
-				// initialize voice processor with double precision
-				this->voiceProcessor = new VoiceProcessorImplementation
-						<double, Voice<double>, CHANNEL_NUM, OSCILLATOR_NUM, GlobalParameterState>
-						(processSetup.sampleRate, &paramState);
+				// double precision
+				this->synthesizer = new Synthesizer<double, CHANNEL_NUM, OSCILLATOR_NUM, FILTER_NUM, ParameterContainer>(float(processSetup.sampleRate), paramState);
 
 			} else {
 				return kInvalidArgument;
@@ -115,9 +101,9 @@ namespace PPSynth {
 
 	tresult Processor::deactivate() {
 		// delete voice processor
-		if(this->voiceProcessor != nullptr) {
-			delete this->voiceProcessor;
-			voiceProcessor = nullptr;
+		if(this->synthesizer != nullptr) {
+			delete this->synthesizer;
+			synthesizer = nullptr;
 		}
 
 		return AudioEffect::setActive(false);

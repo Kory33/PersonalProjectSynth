@@ -1,7 +1,10 @@
 #pragma once
 #include "public.sdk/source/vst/vstaudioeffect.h"
-#include "VoiceProcessor.h"
+#include "Synthesizer.h"
+#include "Parameters.h"
 
+#define OSCILLATOR_NUM 8
+#define FILTER_NUM 2
 #define CHANNEL_NUM 2
 
 namespace Steinberg{
@@ -29,8 +32,8 @@ public:
 	static const FUID cid;
 
 protected:
-	VoiceProcessor* voiceProcessor;  // TODO implement voice processor
-	GlobalParameterState paramState; // TODO implement parameters
+	SynthesizerBase* synthesizer;
+	ParameterContainer* paramState;
 
 private:
 	tresult activate();
