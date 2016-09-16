@@ -24,10 +24,10 @@ public:
 };
 
 // main process class
-template<class Precision, int32 numChannels, int32 numOscillators, int32 numFilters, class GlobalParameterStorage>
+template<class Precision, int32 numChannels, int32 numOscillators, int32 numFilters, class ParameterStorage>
 class Synthesizer : public SynthesizerBase{
 public:
-	explicit Synthesizer(float sampleRate, GlobalParameterStorage* gParamStorage = nullptr);
+	explicit Synthesizer(float sampleRate, ParameterStorage* gParamStorage = nullptr);
 	~Synthesizer(){};
 
 	tresult process(ProcessData& data) override;
