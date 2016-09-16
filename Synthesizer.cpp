@@ -31,7 +31,8 @@ Synthesizer<Precision, numChannels, numOscillators, numFilters, ParameterStorage
 
 template<class Precision, int32 numChannels, int32 numOscillators, int32 numFilters, class ParameterStorage>
 tresult Synthesizer<Precision, numChannels, numOscillators, numFilters, ParameterStorage>::process(ProcessData& data){
-
+	// TODO implementation
+	return kResultTrue;
 }
 
 template <class Precision, int32 numChannels, int32 numOscillators, int32 numFilters, class ParameterStorage>

@@ -10,11 +10,20 @@ namespace PPSynth{
 // ADSR envelope processor's parameter is included
 // since an oscillator has an ADSR envelope processor (aggregation)
 struct OscillatorParameter{
+	// --- default values ---
+	OscillatorParameter(){}
+
+	// --- members ---
 	// TODO implement oscillator's parameter
+
 };
 
 // paramters used in controlling filter
 struct FilterParameter{
+	// --- default values ---
+	FilterParameter(){}
+
+	// --- members ---
 	// TODO implement filter's parameter
 };
 

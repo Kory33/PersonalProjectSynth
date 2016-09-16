@@ -11,9 +11,6 @@ public:
 	// TODO implement Filter class in detail
 	Filter(ParameterContainer paramStorage, double sampleRate);
 
-	static FilterParameter getDefaultParameter() {
-		return;
-	}
 };
 
 }
