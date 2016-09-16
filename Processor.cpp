@@ -57,7 +57,7 @@ namespace PPSynth {
 	}
 
 	tresult Processor::setActive(TBool state) {
-		if(state == true) {
+		if(state) {
 			return this->activate();
 		} else {
 			return this->deactivate();
