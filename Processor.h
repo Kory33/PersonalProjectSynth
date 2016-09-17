@@ -15,6 +15,7 @@ namespace PPSynth{
 class Processor : public AudioEffect{
 public:
 	Processor();
+	~Processor();
 	tresult PLUGIN_API initialize(FUnknown* context) override;
 
 	tresult PLUGIN_API setState(IBStream* state) override;
