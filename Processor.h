@@ -28,7 +28,9 @@ public:
 	tresult PLUGIN_API setActive(TBool state) override;
 	tresult PLUGIN_API process(ProcessData& data) override;
 
-	static FUnknown* createInstance(void*){ return static_cast <IAudioProcessor*>(new Processor()); }
+	static FUnknown* createInstance(void*) {
+		return static_cast<IAudioProcessor*>(new Processor());
+	}
 
 	static const FUID cid;
 

@@ -31,7 +31,30 @@ Synthesizer<Precision, numChannels, numOscillators, numFilters, ParameterStorage
 
 template<class Precision, int32 numChannels, int32 numOscillators, int32 numFilters, class ParameterStorage>
 tresult Synthesizer<Precision, numChannels, numOscillators, numFilters, ParameterStorage>::process(ProcessData& data){
-	// TODO implementation
+	int32 numSamples = data.numSamples;
+	int32 samplesProcessed = 0;
+
+	IEventList* inputEvents = data.inputEvents;
+	Event event = {0};
+	Event* eventPtr = nullptr;
+	int32 eventIndex = 0;
+	int32 numEvents = inputEvents ? inputEvents->getEventCount() : 0;
+
+	if(numEvents) {
+		inputEvents->getEvent(0, event);
+		eventPtr = &event;
+	}
+
+	// initialize audio output buffers
+	Precision* buffers[numChannels];
+	for (int i = 0; i < numChannels; i++) {
+		buffers[i] = new Precision[numSamples * sizeof(Precision)];
+		buffers[i] = static_cast<Precision*>(data.outputs[0].channelBuffers32[i]);
+	}
+
+
+
+
 	return kResultTrue;
 }
 

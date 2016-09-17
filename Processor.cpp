@@ -73,16 +73,11 @@ tresult Processor::process(ProcessData& data) {
 		this->modifyParameter(data);
 	}
 
-	tresult result = (data.numOutputs < 1) ? result = kResultTrue : this->synthesizer->process(data);
-
-	if(result == kResultTrue) {
-//			if(synthesizer->getActiveVoices() == 0 && data.numOutputs > 0) {
-//				// silence channels
-//				data.outputs[0].silenceFlags = 0x11;
-//			}
+	if(data.numOutputs < 1) {
+		return kResultTrue;
 	}
 
-	return result;
+	return this->synthesizer->process(data);
 }
 
 tresult Processor::activate() {
@@ -91,7 +86,7 @@ tresult Processor::activate() {
 			// single precision
 			this->synthesizer = new Synthesizer<double, CHANNEL_NUM, OSCILLATOR_NUM, FILTER_NUM, ParameterContainer>(float(processSetup.sampleRate), paramState);
 
-		} else if(processSetup.symbolicSampleSize == kSample32){
+		} else if(processSetup.symbolicSampleSize == kSample64){
 			// double precision
 			this->synthesizer = new Synthesizer<double, CHANNEL_NUM, OSCILLATOR_NUM, FILTER_NUM, ParameterContainer>(float(processSetup.sampleRate), paramState);
 
