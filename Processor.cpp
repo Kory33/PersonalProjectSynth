@@ -14,6 +14,10 @@ namespace Steinberg {
 namespace Vst {
 	
 namespace PPSynth {
+// set FUID of Processor
+const FUID Processor::cid(0xFCE05A10, 0x1C124D9B, 0xB6516F4B, 0x8F4B804B);
+
+
 Processor::Processor() : synthesizer(nullptr){
 //	setControllerClass(); // TODO add controller class to processor
 
@@ -84,11 +88,11 @@ tresult Processor::activate() {
 	if(this->synthesizer == nullptr){
 		if(processSetup.symbolicSampleSize == kSample32){
 			// single precision
-			this->synthesizer = new Synthesizer<double, CHANNEL_NUM, OSCILLATOR_NUM, FILTER_NUM, ParameterContainer>(float(processSetup.sampleRate), paramState);
+			this->synthesizer = new Synthesizer<double, CHANNEL_NUM, OSCILLATOR_NUM, FILTER_NUM, ParameterContainer>(processSetup.sampleRate, paramState);
 
 		} else if(processSetup.symbolicSampleSize == kSample64){
 			// double precision
-			this->synthesizer = new Synthesizer<double, CHANNEL_NUM, OSCILLATOR_NUM, FILTER_NUM, ParameterContainer>(float(processSetup.sampleRate), paramState);
+			this->synthesizer = new Synthesizer<double, CHANNEL_NUM, OSCILLATOR_NUM, FILTER_NUM, ParameterContainer>(processSetup.sampleRate, paramState);
 
 		} else {
 			return kInvalidArgument;

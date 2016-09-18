@@ -1,5 +1,7 @@
 #pragma once
 #define DEFAULTPARAM_MASTER_VOLUME 1.
+#include <pluginterfaces/vst/ivstcontextmenu.h>
+#include <pluginterfaces/base/ibstream.h>
 
 namespace Steinberg{
 namespace Vst{

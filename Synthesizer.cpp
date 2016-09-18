@@ -31,7 +31,7 @@ Synthesizer<Precision, numChannels, numOscillators, numFilters, ParameterStorage
 
 template<class Precision, int32 numChannels, int32 numOscillators, int32 numFilters, class ParameterStorage>
 tresult Synthesizer<Precision, numChannels, numOscillators, numFilters, ParameterStorage>::process(ProcessData& data){
-	int32 numSamples = data.numSamples;
+	const int32 numSamples = data.numSamples;
 	int32 samplesProcessed = 0;
 
 	IEventList* inputEvents = data.inputEvents;
@@ -46,14 +46,9 @@ tresult Synthesizer<Precision, numChannels, numOscillators, numFilters, Paramete
 	}
 
 	// initialize audio output buffers
-	Precision* buffers[numChannels];
 	for (int i = 0; i < numChannels; i++) {
-		buffers[i] = new Precision[numSamples * sizeof(Precision)];
-		buffers[i] = static_cast<Precision*>(data.outputs[0].channelBuffers32[i]);
+		memset(data.outputs[0].channelBuffers32[i], 0, data.numSamples * sizeof(Precision));
 	}
-
-
-
 
 	return kResultTrue;
 }
@@ -72,6 +67,11 @@ void Synthesizer<Precision, numChannels, numOscillators, numFilters, ParameterSt
 	for(int32 i = 0; i < numFilters; i++){
 		this->filters[i] = new Filter(paramStorage, sampleRate);
 	}
+}
+
+template <class Precision, int32 numChannels, int32 numOscillators, int32 numFilters, class ParameterStorage>
+void Synthesizer<Precision, numChannels, numOscillators, numFilters, ParameterStorage>::processEvent(Event e) {
+
 }
 
 }
