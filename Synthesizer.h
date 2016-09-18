@@ -6,10 +6,9 @@
 
 #include "Oscillator.h"
 #include "Filter.h"
+#include "VirtualKeyboard.h"
 
-#ifndef VOICEPROCESSOR_BLOCKSIZE
-	#define VOICEPROCESSOR_BLOCKSIZE 32
-#endif
+#define MIDI_CHANNEL_NUM 16
 
 namespace Steinberg {
 namespace Vst {
@@ -34,9 +33,11 @@ public:
 private:
 	Oscillator* oscillators[numOscillators];
 	Filter filters[numFilters];
+	VirtualKeyboard keyboards[MIDI_CHANNEL_NUM];
 
 	void initOscillators(float sampleRate, ParameterStorage* paramStorage);
 	void initFilters(float sampleRate, ParameterStorage* paramStorage);
+	void processEvent(Event e);
 };
 
 }
