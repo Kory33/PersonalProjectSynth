@@ -7,8 +7,8 @@ namespace PPSynth{
 
 template<class Precision, int32 numChannels, int32 numOscillators, int32 numFilters, class ParameterStorage>
 Synthesizer<Precision, numChannels, numOscillators, numFilters, ParameterStorage>::Synthesizer(float sampleRate, ParameterStorage* paramStorage){
-	this->initOscillators();
-	this->initFilters();
+	this->initOscillators(sampleRate, paramStorage);
+	this->initFilters(sampleRate, paramStorage);
 }
 
 template <class Precision, int32 numChannels, int32 numOscillators, int32 numFilters, class ParameterStorage>
