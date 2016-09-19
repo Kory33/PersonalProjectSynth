@@ -9,7 +9,7 @@ namespace PPSynth{
 class Filter {
 public:
 	// TODO implement Filter class in detail
-	Filter(ParameterContainer paramStorage, double sampleRate);
+	Filter(ParameterContainer* paramStorage, double sampleRate);
 
 };
 
