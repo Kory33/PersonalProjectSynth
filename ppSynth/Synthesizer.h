@@ -6,7 +6,6 @@
 
 #include "Oscillator.h"
 #include "Filter.h"
-#include "VirtualKeyboard.h"
 
 #define MIDI_CHANNEL_NUM 16
 
@@ -33,7 +32,6 @@ public:
 private:
 	Oscillator* oscillators[numOscillators];
 	Filter* filters[numFilters];
-	VirtualKeyboard keyboards[MIDI_CHANNEL_NUM];
 	ParameterStorage* paramStorage;
 
 	void initOscillators(float sampleRate, ParameterStorage* paramStorage);
@@ -75,12 +73,12 @@ tresult Synthesizer<Precision, numChannels, numOscillators, numFilters, Paramete
 	Event event = {0};
 	Event* eventPtr = nullptr;
 	int32 eventIndex = 0;
-	int32 numEvents = inputEvents ? inputEvents->getEventCount() : 0;
 
-	if(numEvents){
-		inputEvents->getEvent(0, event);
-		eventPtr = &event;
-	}
+	int32 numEvents = inputEvents ? inputEvents->getEventCount() : 0;
+	if(numEvents == 0) return kResultTrue;
+
+	inputEvents->getEvent(0, event);
+	eventPtr = &event;
 
 	// initialize audio output buffers
 	for(int i = 0; i < numChannels; i++){
