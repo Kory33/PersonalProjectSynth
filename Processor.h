@@ -36,7 +36,7 @@ public:
 
 protected:
 	SynthesizerBase* synthesizer;
-	ParameterContainer* paramState;
+	ParameterStorage* paramState;
 
 private:
 	tresult activate();

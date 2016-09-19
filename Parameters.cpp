@@ -1,9 +1,17 @@
 #include "Parameters.h"
 
-Steinberg::tresult Steinberg::Vst::PPSynth::ParameterContainer::setState(IBStream* stream) {
+namespace Steinberg{
+namespace Vst{
+namespace PPSynth{
+
+tresult ParameterStorage::setState(IBStream* stream) {
 	return kResultTrue;
 }
 
-Steinberg::tresult Steinberg::Vst::PPSynth::ParameterContainer::getState(IBStream* stream) {
+tresult ParameterStorage::getState(IBStream* stream) {
 	return kResultTrue;
+}
+
+}
+}
 }

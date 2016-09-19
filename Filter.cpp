@@ -4,7 +4,7 @@ namespace Steinberg {
 namespace Vst {
 namespace PPSynth {
 
-Filter::Filter(ParameterContainer* paramStorage, double sampleRate){
+Filter::Filter(ParameterStorage* paramStorage, double sampleRate){
 	this->paramStorage = paramStorage;
 	this->sampleRate = sampleRate;
 }

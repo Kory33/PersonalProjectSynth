@@ -8,10 +8,10 @@ namespace PPSynth{
 class Oscillator {
 public:
 	// TODO implement Oscillator class in detail
-	Oscillator(ParameterContainer* paramStorage, double sampleRate);
+	Oscillator(ParameterStorage* paramStorage, double sampleRate);
 
 private:
-	ParameterContainer* paramStorage;
+	ParameterStorage* paramStorage;
 	double sampleRate;
 };
 

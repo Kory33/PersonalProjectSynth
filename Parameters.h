@@ -30,9 +30,9 @@ struct FilterParameter{
 };
 
 // set of parameters used in synth
-class ParameterContainer{
+class ParameterStorage{
 public:
-	ParameterContainer(int oscNum, int filterNum, double masterVolume = DEFAULTPARAM_MASTER_VOLUME) {
+	ParameterStorage(int oscNum, int filterNum, double masterVolume = DEFAULTPARAM_MASTER_VOLUME) {
 		// init oscillators' parameters
 		this->oscParams = new OscillatorParameter[oscNum];
 		for(int i = 0; i < oscNum; i++){
@@ -48,7 +48,7 @@ public:
 		this->masterVolume = masterVolume;
 	}
 
-	~ParameterContainer() {
+	~ParameterStorage() {
 		if(oscParams) delete[] oscParams;
 		if(filterParams) delete[] filterParams;
 	}

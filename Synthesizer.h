@@ -34,6 +34,7 @@ private:
 	Oscillator* oscillators[numOscillators];
 	Filter* filters[numFilters];
 	VirtualKeyboard keyboards[MIDI_CHANNEL_NUM];
+	ParameterStorage* paramStorage;
 
 	void initOscillators(float sampleRate, ParameterStorage* paramStorage);
 	void initFilters(float sampleRate, ParameterStorage* paramStorage);
