@@ -11,7 +11,8 @@ public:
 	Oscillator(ParameterContainer* paramStorage, double sampleRate);
 
 private:
-	ParameterContainer* paramState;
+	ParameterContainer* paramStorage;
+	double sampleRate;
 };
 
 }

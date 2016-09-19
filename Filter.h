@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Synthesizer.h"
+#include "Parameters.h"
 
 namespace Steinberg{
 namespace Vst{
@@ -10,7 +10,9 @@ class Filter {
 public:
 	// TODO implement Filter class in detail
 	Filter(ParameterContainer* paramStorage, double sampleRate);
-
+private:
+	ParameterContainer* paramStorage;
+	double sampleRate;
 };
 
 }
