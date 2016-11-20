@@ -6,8 +6,9 @@
 
 #include "Oscillator.h"
 #include "Filter.h"
+#include <algorithm>
 
-#define MIDI_CHANNEL_NUM 16
+#define PROCESS_BLOCK_SIZE 32
 
 namespace Steinberg {
 namespace Vst {
@@ -36,7 +37,8 @@ private:
 
 	void initOscillators(float sampleRate, ParameterStorage* paramStorage);
 	void initFilters(float sampleRate, ParameterStorage* paramStorage);
-	void processEvent(Event e);
+	void pushEvent(Event e, int32 processBlockOffset);
+	
 };
 
 
@@ -63,26 +65,55 @@ Synthesizer<Precision, numChannels, numOscillators, numFilters, ParameterStorage
 	}
 }
 
+/**
+ * Receives events from the host program and writes the signal output
+ * Chunk of samples(data.numSamples) is devided into smaller "process-block",
+ * and they will be processed sequentially.
+ */
 
 template<class Precision, int32 numChannels, int32 numOscillators, int32 numFilters, class ParameterStorage>
 tresult Synthesizer<Precision, numChannels, numOscillators, numFilters, ParameterStorage>::process(ProcessData& data){
 	const int32 numSamples = data.numSamples;
-	int32 samplesProcessed = 0;
 
 	IEventList* inputEvents = data.inputEvents;
+
 	Event event = {0};
-	Event* eventPtr = nullptr;
 	int32 eventIndex = 0;
 
 	int32 numEvents = inputEvents ? inputEvents->getEventCount() : 0;
 	if(numEvents == 0) return kResultTrue;
 
+	// get first event
 	inputEvents->getEvent(0, event);
-	eventPtr = &event;
 
-	// initialize audio output buffers
-	for(int i = 0; i < numChannels; i++){
-		memset(data.outputs[0].channelBuffers32[i], 0, data.numSamples * sizeof(Precision));
+	// prepare buffer array to let oscillators store the output
+	Precision oscillatorOutputBuffer[numOscillators][numChannels][PROCESS_BLOCK_SIZE];
+
+	int32 remainingSamples = numSamples;
+	int32 processBlockOffset = 0;
+
+	while(remainingSamples > 0) {
+		int32 samplesToBeProcessed = std::min<int32>(PROCESS_BLOCK_SIZE, remainingSamples);
+
+		while(eventIndex < numEvents) {
+			// next event is outside current process block
+			if(event.sampleOffset - processBlockOffset > samplesToBeProcessed) break;
+
+			// register the event
+			this->pushEvent(event, processBlockOffset);
+
+			// get next event
+			eventIndex++;
+			if(inputEvents->getEvent(eventIndex, event) != kResultTrue) break;
+		}
+
+		// process the process-block and store signal output to the buffers
+		for(int32 i = 0; i < numOscillators;) {
+			this->oscillators[i]->processBuffer(oscillatorOutputBuffer[i], PROCESS_BLOCK_SIZE);
+		}
+
+		remainingSamples -= samplesToBeProcessed;
+		processBlockOffset += samplesToBeProcessed;
 	}
 
 	return kResultTrue;
@@ -105,8 +136,8 @@ void Synthesizer<Precision, numChannels, numOscillators, numFilters, ParameterSt
 }
 
 template <class Precision, int32 numChannels, int32 numOscillators, int32 numFilters, class ParameterStorage>
-void Synthesizer<Precision, numChannels, numOscillators, numFilters, ParameterStorage>::processEvent(Event e){
-
+void Synthesizer<Precision, numChannels, numOscillators, numFilters, ParameterStorage>::pushEvent(Event e, int32 processBlockOffset){
+	// TODO implementation
 }
 
 }
