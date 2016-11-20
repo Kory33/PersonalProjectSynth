@@ -31,7 +31,7 @@ public:
 
 	tresult process(ProcessData& data) override;
 private:
-	Oscillator* oscillators[numOscillators];
+	Oscillator<Precision>* oscillators[numOscillators];
 	Filter* filters[numFilters];
 	ParameterStorage* paramStorage;
 
@@ -109,8 +109,10 @@ tresult Synthesizer<Precision, numChannels, numOscillators, numFilters, Paramete
 
 		// process the process-block and store signal output to the buffers
 		for(int32 i = 0; i < numOscillators;) {
-			this->oscillators[i]->processBuffer(oscillatorOutputBuffer[i], PROCESS_BLOCK_SIZE);
+			this->oscillators[i]->processBuffer(oscillatorOutputBuffer[i], numChannels, PROCESS_BLOCK_SIZE);
 		}
+
+		//TODO add process to the output from synthesizer
 
 		remainingSamples -= samplesToBeProcessed;
 		processBlockOffset += samplesToBeProcessed;
@@ -123,7 +125,7 @@ template <class Precision, int32 numChannels, int32 numOscillators, int32 numFil
 void Synthesizer<Precision, numChannels, numOscillators, numFilters, ParameterStorage>::initOscillators(float sampleRate, ParameterStorage* paramStorage){
 	// initialize oscillators
 	for(int32 i = 0; i < numOscillators; i++){
-		this->oscillators[i] = new Oscillator(paramStorage, sampleRate);
+		this->oscillators[i] = new Oscillator<Precision>(paramStorage, sampleRate);
 	}
 }
 

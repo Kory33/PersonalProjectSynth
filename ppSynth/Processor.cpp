@@ -88,17 +88,12 @@ tresult Processor::activate() {
 	if(this->synthesizer == nullptr){
 		if(processSetup.symbolicSampleSize == kSample32){
 			// single precision
-			this->synthesizer = new Synthesizer<double, CHANNEL_NUM, OSCILLATOR_NUM, FILTER_NUM, ParameterStorage>(processSetup.sampleRate, paramState);
+			this->synthesizer = new Synthesizer<float, CHANNEL_NUM, OSCILLATOR_NUM, FILTER_NUM, ParameterStorage>(processSetup.sampleRate, paramState);
 
 		} else if(processSetup.symbolicSampleSize == kSample64){
 			// double precision
 			this->synthesizer = new Synthesizer<double, CHANNEL_NUM, OSCILLATOR_NUM, FILTER_NUM, ParameterStorage>(processSetup.sampleRate, paramState);
 			this->synthesizer = new Synthesizer<double, CHANNEL_NUM, OSCILLATOR_NUM, FILTER_NUM, ParameterStorage>(processSetup.sampleRate, paramState);
-
-		} else if(processSetup.symbolicSampleSize == kSample64){
-			// double precision
-			this->synthesizer = new Synthesizer<double, CHANNEL_NUM, OSCILLATOR_NUM, FILTER_NUM, ParameterStorage>(processSetup.sampleRate, paramState);
-
 		} else {
 			return kInvalidArgument;
 		}
